@@ -19,7 +19,10 @@ class Onboarding {
     }
 
     public function shortcode_access() {
-        if ( isset( $_POST['bml_email'] ) && isset( $_POST['bml_nonce'] ) && check_admin_referer( 'bml_access', 'bml_nonce' ) ) {
+        if (
+            isset( $_POST['bml_email'], $_POST['bml_nonce'] )
+            && check_admin_referer( 'bml_access', 'bml_nonce' )
+        ) {
             $this->handle_access_submit();
         }
 
@@ -61,8 +64,9 @@ class Onboarding {
 
         $this->send_magic_link( $user->ID );
 
+        // Messaggio allineato al testo usato nella pagina di accesso
         add_filter( 'bml_access_message', function() {
-            return __( 'Check your email for the magic login link.', 'buddymagiclogin' );
+            return __( 'Check your email for the magic login link. Click on it to access to the website.', 'buddymagiclogin' );
         } );
     }
 
@@ -90,10 +94,18 @@ class Onboarding {
         );
 
         $subject = __( 'Your magic login link', 'buddymagiclogin' );
-        $message = sprintf(
-            __( "Click this link to log in:\n\n%s\n\nThis link will expire in 60 minutes.", 'buddymagiclogin' ),
-            esc_url( $magic_url )
-        );
+
+        // Testo esattamente come richiesto
+        $message = "Hello,
+You are receiving this message because you entered your email address on our website.
+To log in or register on the site, click on this link:
+" . esc_url( $magic_url ) . "
+
+You will be redirected to our website where you can log in or register.
+
+The link will expire after 60 minutes.
+
+The Site Administrator";
 
         wp_mail( $user->user_email, $subject, $message );
     }
@@ -156,7 +168,10 @@ class Onboarding {
 
         $user_id = get_current_user_id();
 
-        if ( isset( $_POST['bml_registration_submit'] ) && isset( $_POST['bml_nonce'] ) && check_admin_referer( 'bml_registration', 'bml_nonce' ) ) {
+        if (
+            isset( $_POST['bml_registration_submit'], $_POST['bml_nonce'] )
+            && check_admin_referer( 'bml_registration', 'bml_nonce' )
+        ) {
             $this->handle_registration_submit( $user_id );
         }
 
