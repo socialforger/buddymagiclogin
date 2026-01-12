@@ -18,7 +18,13 @@ class Onboarding {
         add_action( 'template_redirect', [ $this, 'handle_magic_link' ] );
     }
 
+    /**
+     * ---------------------------------------------------------
+     *  ACCESS PAGE SHORTCODE
+     * ---------------------------------------------------------
+     */
     public function shortcode_access() {
+
         if (
             isset( $_POST['bml_email'], $_POST['bml_nonce'] )
             && check_admin_referer( 'bml_access', 'bml_nonce' )
@@ -31,8 +37,16 @@ class Onboarding {
         return ob_get_clean();
     }
 
+    /**
+     * ---------------------------------------------------------
+     *  HANDLE ACCESS FORM SUBMISSION
+     * ---------------------------------------------------------
+     */
     protected function handle_access_submit() {
-        $email = isset( $_POST['bml_email'] ) ? sanitize_email( wp_unslash( $_POST['bml_email'] ) ) : '';
+
+        $email = isset( $_POST['bml_email'] )
+            ? sanitize_email( wp_unslash( $_POST['bml_email'] ) )
+            : '';
 
         if ( ! is_email( $email ) ) {
             add_filter( 'bml_access_message', function() {
@@ -43,7 +57,9 @@ class Onboarding {
 
         $user = get_user_by( 'email', $email );
 
+        // Create user if not existing
         if ( ! $user ) {
+
             $user_id = wp_insert_user( [
                 'user_login' => $email,
                 'user_email' => $email,
@@ -59,18 +75,25 @@ class Onboarding {
 
             update_user_meta( $user_id, 'bml_status', 'pending_registration' );
             update_user_meta( $user_id, 'bml_created', time() );
+
             $user = get_user_by( 'id', $user_id );
         }
 
+        // Send magic link
         $this->send_magic_link( $user->ID );
 
-        // Messaggio allineato al testo usato nella pagina di accesso
         add_filter( 'bml_access_message', function() {
             return __( 'Check your email for the magic login link. Click on it to access to the website.', 'buddymagiclogin' );
         } );
     }
 
+    /**
+     * ---------------------------------------------------------
+     *  SEND MAGIC LINK EMAIL
+     * ---------------------------------------------------------
+     */
     protected function send_magic_link( $user_id ) {
+
         $user = get_user_by( 'id', $user_id );
         if ( ! $user ) {
             return;
@@ -95,7 +118,7 @@ class Onboarding {
 
         $subject = __( 'Your magic login link', 'buddymagiclogin' );
 
-        // Testo esattamente come richiesto
+        // Testo email richiesto da Marco
         $message = "Hello,
 You are receiving this message because you entered your email address on our website.
 To log in or register on the site, click on this link:
@@ -110,7 +133,13 @@ The Site Administrator";
         wp_mail( $user->user_email, $subject, $message );
     }
 
+    /**
+     * ---------------------------------------------------------
+     *  HANDLE MAGIC LINK LOGIN
+     * ---------------------------------------------------------
+     */
     public function handle_magic_link() {
+
         if ( empty( $_GET['bml_token'] ) || empty( $_GET['bml_uid'] ) ) {
             return;
         }
@@ -121,7 +150,12 @@ The Site Administrator";
         $saved_token   = get_user_meta( $user_id, 'bml_token', true );
         $saved_expires = (int) get_user_meta( $user_id, 'bml_expires', true );
 
-        if ( empty( $saved_token ) || ! hash_equals( $saved_token, $token ) || time() > $saved_expires ) {
+        // Validate token
+        if (
+            empty( $saved_token )
+            || ! hash_equals( $saved_token, $token )
+            || time() > $saved_expires
+        ) {
             wp_die(
                 esc_html__( 'Invalid or expired magic link.', 'buddymagiclogin' ),
                 esc_html__( 'Magic link error', 'buddymagiclogin' ),
@@ -129,13 +163,17 @@ The Site Administrator";
             );
         }
 
+        // Payment timeout check
         $status = get_user_meta( $user_id, 'bml_status', true );
+
         if ( 'pending_payment' === $status ) {
+
             $started = (int) get_user_meta( $user_id, 'bml_payment_started', true );
             $timeout = (int) get_option( 'bml_payment_timeout', 60 );
             $expires = $started + ( $timeout * MINUTE_IN_SECONDS );
 
             if ( $started && time() > $expires ) {
+
                 wp_delete_user( $user_id );
 
                 wp_die(
@@ -146,22 +184,33 @@ The Site Administrator";
             }
         }
 
+        // Log user in
         wp_set_auth_cookie( $user_id, true );
         wp_set_current_user( $user_id );
 
+        // Redirect to registration page if needed
         if ( 'pending_registration' === $status ) {
+
             $reg_page = (int) get_option( 'bml_registration_page', 0 );
+
             if ( $reg_page ) {
                 wp_safe_redirect( get_permalink( $reg_page ) );
                 exit;
             }
         }
 
+        // Final redirect (Integration handles profile/custom URL)
         Integration::redirect( $user_id );
         exit;
     }
 
+    /**
+     * ---------------------------------------------------------
+     *  REGISTRATION PAGE SHORTCODE
+     * ---------------------------------------------------------
+     */
     public function shortcode_registration() {
+
         if ( ! is_user_logged_in() ) {
             return '<p>' . esc_html__( 'Use the magic login link from your email to access this page.', 'buddymagiclogin' ) . '</p>';
         }
@@ -180,23 +229,34 @@ The Site Administrator";
         return ob_get_clean();
     }
 
+    /**
+     * ---------------------------------------------------------
+     *  HANDLE REGISTRATION SUBMISSION
+     * ---------------------------------------------------------
+     */
     protected function handle_registration_submit( $user_id ) {
+
         $enable_payment = (int) get_option( 'bml_payment_enable', 0 );
 
         if ( $enable_payment ) {
+
             update_user_meta( $user_id, 'bml_status', 'pending_payment' );
             update_user_meta( $user_id, 'bml_payment_started', time() );
 
             $payment_page = (int) get_option( 'bml_payment_page', 0 );
+
             if ( $payment_page ) {
                 wp_safe_redirect( get_permalink( $payment_page ) );
                 exit;
             }
 
+            // No payment page → mark as completed
             update_user_meta( $user_id, 'bml_status', 'completed' );
             Integration::redirect( $user_id );
             exit;
+
         } else {
+
             update_user_meta( $user_id, 'bml_status', 'completed' );
             Integration::redirect( $user_id );
             exit;
