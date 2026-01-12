@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Buddy Magic Login
- * Description: Passwordless login, registration and optional payment for Buddypress & Buddyboss.
+ * Description: Passwordless login, registration and optional payment for BuddyPress & BuddyBoss.
  * Version: 1.0.0
  * Author: Socialforger
  * Text Domain: buddymagiclogin
@@ -18,9 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * ---------------------------------------------------------
  */
 add_action( 'plugins_loaded', function() {
-    load_plugin_textdomain( 'buddymagiclogin', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+    load_plugin_textdomain(
+        'buddymagiclogin',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages'
+    );
 });
-
 
 /**
  * ---------------------------------------------------------
@@ -30,19 +33,23 @@ add_action( 'plugins_loaded', function() {
 define( 'BML_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BML_URL', plugin_dir_url( __FILE__ ) );
 
-
 /**
  * ---------------------------------------------------------
- *  INCLUDE FILES
+ *  INCLUDE CORE FILES
+ *  (aligned to your actual /includes/ folder)
  * ---------------------------------------------------------
  */
-require_once BML_DIR . 'includes/Detector.php';
-require_once BML_DIR . 'includes/Integration.php';
-require_once BML_DIR . 'includes/class-bml-onboarding.php';   // ← CORRETTO
-require_once BML_DIR . 'includes/cleanup.php';
-require_once BML_DIR . 'admin/settings.php';
-require_once BML_DIR . 'admin/settings-page.php';
+require_once BML_DIR . 'includes/class-bml-plugin.php';
+require_once BML_DIR . 'includes/class-bml-detector.php';
+require_once BML_DIR . 'includes/class-bml-integration.php';
+require_once BML_DIR . 'includes/class-bml-onboarding.php';
+require_once BML_DIR . 'includes/class-bml-admin.php';
+require_once BML_DIR . 'includes/class-bml-cron.php';
+require_once BML_DIR . 'includes/class-bml-security.php';
+require_once BML_DIR . 'includes/functions-template.php';
 
+// Admin settings page (this file exists)
+require_once BML_DIR . 'admin/settings-page.php';
 
 /**
  * ---------------------------------------------------------
@@ -66,7 +73,6 @@ add_filter( 'wp_mail_from_name', function( $name ) {
     return wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 });
 
-
 /**
  * ---------------------------------------------------------
  *  BLOCK WORDPRESS LOGIN (WITHOUT BREAKING LOGOUT)
@@ -78,7 +84,9 @@ function bml_block_wp_login() {
         return;
     }
 
-    $action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+    $action = isset( $_REQUEST['action'] )
+        ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) )
+        : '';
 
     // Allow logout
     if ( $action === 'logout' ) {
@@ -113,7 +121,6 @@ function bml_block_wp_login() {
 }
 add_action( 'login_init', 'bml_block_wp_login' );
 
-
 /**
  * ---------------------------------------------------------
  *  BLOCK BUDDYBOSS / BUDDYPRESS LOGIN
@@ -144,7 +151,6 @@ function bml_block_bp_login() {
 }
 add_action( 'template_redirect', 'bml_block_bp_login' );
 
-
 /**
  * ---------------------------------------------------------
  *  TEMPLATE LOADER
@@ -156,4 +162,56 @@ add_filter( 'template_include', function( $template ) {
     $registration_page = (int) get_option( 'bml_registration_page', 0 );
 
     if ( $access_page && is_page( $access_page ) ) {
-        return BML_DIR . 'templates/access
+        return BML_DIR . 'templates/access-form.php';
+    }
+
+    if ( $registration_page && is_page( $registration_page ) ) {
+        return BML_DIR . 'templates/registration-form.php';
+    }
+
+    return $template;
+});
+
+/**
+ * ---------------------------------------------------------
+ *  SHORTCODES
+ * ---------------------------------------------------------
+ */
+function bml_shortcode_access() {
+    ob_start();
+    include BML_DIR . 'templates/access-form.php';
+    return ob_get_clean();
+}
+
+function bml_shortcode_registration() {
+    ob_start();
+    include BML_DIR . 'templates/registration-form.php';
+    return ob_get_clean();
+}
+
+add_shortcode( 'bml_access', 'bml_shortcode_access' );
+add_shortcode( 'bml_registration', 'bml_shortcode_registration' );
+
+/**
+ * ---------------------------------------------------------
+ *  ACTIVATION HOOK
+ * ---------------------------------------------------------
+ */
+register_activation_hook( __FILE__, function() {
+    if ( ! get_option( 'bml_cleanup_timeout' ) ) {
+        update_option( 'bml_cleanup_timeout', 60 );
+    }
+});
+
+/**
+ * ---------------------------------------------------------
+ *  INITIALIZE MAIN PLUGIN CLASS
+ * ---------------------------------------------------------
+ * This assumes your main class is \BML\Plugin.
+ * If the class name is different, tell me and I’ll adjust it.
+ */
+add_action( 'plugins_loaded', function() {
+    if ( class_exists( '\BML\Plugin' ) ) {
+        new \BML\Plugin();
+    }
+});
