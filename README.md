@@ -1,2 +1,2 @@
-# buddymagiclogin
-Passwordless login, registration and optional subscription for Buddypress &amp; Buddyboss
+# Buddy Magic Login
+Passwordless login, registration and optional payment for Buddypress &amp; Buddyboss
