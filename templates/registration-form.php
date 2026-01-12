@@ -3,34 +3,37 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$enable_payment = (int) get_option( 'bml_payment_enable', 0 );
-$timeout        = (int) get_option( 'bml_payment_timeout', 60 );
+if ( ! is_user_logged_in() ) : ?>
 
-$button_label = $enable_payment
-    ? __( 'Vai al pagamento', 'buddymagiclogin' )
-    : __( 'Completa registrazione', 'buddymagiclogin' );
+    <p><?php esc_html_e( 'Use the magic login link from your email to access this page.', 'buddymagiclogin' ); ?></p>
+
+<?php
+    return;
+endif;
+
+$user_id = get_current_user_id();
 ?>
-<form method="post" class="bml-registration-form">
-    <?php wp_nonce_field( 'bml_registration', 'bml_nonce' ); ?>
 
-    <p>
-        <?php esc_html_e( 'Complete your profile and continue.', 'buddymagiclogin' ); ?>
-    </p>
+<div class="bml-registration-wrapper">
 
-    <?php if ( $enable_payment ) : ?>
-        <p class="bml-payment-info">
-            <?php
-            printf(
-                esc_html__( 'Hai tempo per pagare: %d minuti.', 'buddymagiclogin' ),
-                $timeout
-            );
-            ?>
-        </p>
-    <?php endif; ?>
+    <form method="post" class="bml-registration-form">
 
-    <p>
-        <button type="submit" name="bml_registration_submit" class="button button-primary">
-            <?php echo esc_html( $button_label ); ?>
+        <h2><?php esc_html_e( 'Complete registration', 'buddymagiclogin' ); ?></h2>
+
+        <?php
+        /**
+         * Qui puoi aggiungere campi personalizzati in futuro.
+         * Per ora lasciamo la registrazione "vuota" perché la logica
+         * è gestita da Onboarding::handle_registration_submit().
+         */
+        ?>
+
+        <?php wp_nonce_field( 'bml_registration', 'bml_nonce' ); ?>
+
+        <button type="submit" name="bml_registration_submit" class="bml-submit">
+            <?php esc_html_e( 'Complete registration', 'buddymagiclogin' ); ?>
         </button>
-    </p>
-</form>
+
+    </form>
+
+</div>
