@@ -1,0 +1,142 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Buddy Magic Login 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-12 00:00+0000\n"
+"PO-Revision-Date: 2026-01-12 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: BuddyMagicLogin POT\n"
+"X-Domain: buddymagiclogin\n"
+
+#: buddymagiclogin.php
+msgid "Buddy Magic Login"
+msgstr ""
+
+#: admin/settings-page.php:20
+msgid "Core pages"
+msgstr ""
+
+#: admin/settings-page.php:24
+msgid "Access Page"
+msgstr ""
+
+#: admin/settings-page.php:36
+msgid "Registration Page"
+msgstr ""
+
+#: admin/settings-page.php:58
+msgid "Payment"
+msgstr ""
+
+#: admin/settings-page.php:62
+msgid "Enable payment step"
+msgstr ""
+
+#: admin/settings-page.php:77
+msgid "Payment Page"
+msgstr ""
+
+#: admin/settings-page.php:97
+msgid "Payment timeout (minutes)"
+msgstr ""
+
+#: admin/settings-page.php:119
+msgid "Final redirect"
+msgstr ""
+
+#: admin/settings-page.php:123
+msgid "Redirect target"
+msgstr ""
+
+#: admin/settings-page.php:128
+msgid "User profile (BuddyBoss/BuddyPress)"
+msgstr ""
+
+#: admin/settings-page.php:133
+msgid "Custom URL"
+msgstr ""
+
+#: admin/settings-page.php:154
+msgid "Security"
+msgstr ""
+
+#: admin/settings-page.php:158
+msgid "Disable WordPress login"
+msgstr ""
+
+#: admin/settings-page.php:170
+msgid "Disable BuddyBoss/BuddyPress login"
+msgstr ""
+
+#: admin/settings-page.php:182
+msgid "Disable password reset"
+msgstr ""
+
+#: admin/settings-page.php:194
+msgid "Disable change password"
+msgstr ""
+
+#: admin/settings-page.php:214
+msgid "Cleanup"
+msgstr ""
+
+#: templates/access-form.php:10
+msgid "Email address"
+msgstr ""
+
+#: templates/access-form.php:17
+msgid "Send magic login link"
+msgstr ""
+
+#: templates/registration-form.php:12
+msgid "Complete your profile and continue."
+msgstr ""
+
+#: templates/registration-form.php:19
+msgid "Time to complete payment: %d minutes."
+msgstr ""
+
+#: templates/registration-form.php:27
+msgid "Go to payment"
+msgstr ""
+
+#: templates/registration-form.php:28
+msgid "Complete registration"
+msgstr ""
+
+#: includes/class-bml-onboarding.php:55
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/class-bml-onboarding.php:80
+msgid "Check your email for the magic login link."
+msgstr ""
+
+#: includes/class-bml-onboarding.php:106
+msgid "Your magic login link"
+msgstr ""
+
+#: includes/class-bml-onboarding.php:108
+msgid "Click this link to log in:\n\n%s\n\nThis link will expire in 60 minutes."
+msgstr ""
+
+#: includes/class-bml-onboarding.php:125
+msgid "Invalid or expired magic link."
+msgstr ""
+
+#: includes/class-bml-onboarding.php:126
+msgid "Magic link error"
+msgstr ""
+
+#: includes/class-bml-onboarding.php:140
+msgid "Time expired for payment. Please, start registration again."
+msgstr ""
+
+#: includes/class-bml-onboarding.php:141
+msgid "Payment expired"
+msgstr ""
