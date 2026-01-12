@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name:       Buddy Magic Login
- * Description:       Passwordless magic-link login and onboarding for BuddyBoss and BuddyPress.
+ * Description:       Passwordless login, registration and optional payment for Buddypress and BuddyBoss.
  * Version:           1.0.0
- * Author:            SocialAction
+ * Author:            Socialforger
  * Text Domain:       buddymagiclogin
  * Domain Path:       /languages
  */
